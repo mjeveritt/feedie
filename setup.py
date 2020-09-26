@@ -14,7 +14,8 @@ setup(name='feedie',
           'feedparser',
           'irc',
           'requests',
-          'sgmllib3k'
+          'sgmllib3k',
+          'pyyaml'
       ],
       entry_points={
           'console_scripts': ['feedie=feedie:main'],
