@@ -215,7 +215,11 @@ class _Feeds(threading.Thread):
         oldheadlines = set(map(canonize, oldheadlines))
         
         for (i, headline) in enumerate(newheadlines):
-            if canonize(headline) in oldheadlines:
+            entry_old = oldresults['entries'][i]
+            entry_new = newresults['entries'][i]
+            time_old = entry_old.get('updated_parsed', entry_new.get('published_parsed'))
+            time_new = entry_new.get('updated_parsed', entry_new.get('published_parsed'))
+            if canonize(headline) in oldheadlines and time_old >= time_new:
                 newheadlines[i] = None
         newheadlines = filter(None, newheadlines) # Removes Nones.
         
