@@ -378,6 +378,9 @@ class feedie(SimpleIRCClient):
     
     
     def on_pubmsg(self, serv, ev):
+        if self.config.cmd_prefix is None:
+            return
+
         nick = ev.source.nick
         chan = ev.target
         message = ev.arguments[0]
