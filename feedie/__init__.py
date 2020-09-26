@@ -25,6 +25,7 @@ from jaraco.stream import buffer        # type: ignore
 from datetime import timedelta
 from queue import Queue
 from typing import List
+import argparse
 import re
 import os
 import sys
@@ -38,7 +39,7 @@ import requests
 import itertools
 import threading
 import feedparser   # type: ignore
-from config import Config, Feed, Network
+from feedie.config import Config, Feed, Network
 
 
 def _termHandler(signalNumber, stackFrame):
@@ -547,9 +548,14 @@ class feedie(SimpleIRCClient):
             return '\x03%s,%s%s\x03' % (fg, bg.zfill(2), s)
 
 
-def main(argv: List[str]):
+def main():
+    parser = argparse.ArgumentParser(description='feedie sends RSS feeds to IRC channels')
+    parser.add_argument('config_path', metavar="CONFIG.yaml", type=str,
+                        help="Path to the config YAML file")
+    args = parser.parse_args()
+
     try:
-        config = Config(argv[1])
+        config = Config(args.config_path)
         bot = feedie(config)
         bot.buffer_class = buffer.LenientDecodingLineBuffer
         irc.client.ServerConnection.buffer_class = buffer.LenientDecodingLineBuffer
@@ -571,7 +577,7 @@ def main(argv: List[str]):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
 
 
 #EOF
