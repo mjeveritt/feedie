@@ -221,14 +221,14 @@ class _Feeds(threading.Thread):
             time_new = entry_new.get('updated_parsed', entry_new.get('published_parsed'))
             if canonize(headline) in oldheadlines and time_old >= time_new:
                 newheadlines[i] = None
-        newheadlines = filter(None, newheadlines) # Removes Nones.
         
         if newheadlines:
-            for headline in newheadlines:
+            for i, headline in enumerate(newheadlines):
+                if headline is None:
+                    continue
                 if headline[1]:
                     title = headline[0]
-                    short_url = self.shorten_url(headline[1])
-                    if not short_url or short_url == 'Error': short_url = url
+                    link = newresults['entries'][i].get('link', 'no_url')
                     feedName = self.bot.mircColor(name, feed[name]['color'])
                     feedTitle = self.bot.mircColor(title, 'blue')
                     try:
@@ -236,7 +236,7 @@ class _Feeds(threading.Thread):
                     except KeyError:
                         # send to all channels
                         chan = None
-                    self.on_rss_entry(chan=chan, text='{0} {1} {2}'.format(feedName, feedTitle, self.bot.underline(short_url)))
+                    self.on_rss_entry(chan=chan, text='{0} {1} {2}'.format(feedName, feedTitle, self.bot.underline(link)))
     
     
     def on_rss_entry(self, chan=None, text=''):
