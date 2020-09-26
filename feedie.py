@@ -112,7 +112,7 @@ class _Feeds(threading.Thread):
         try:
             response = requests.get(self.service_url, params=get_params, headers=self.headers)
         except (requests.ConnectionError, requests.HTTPError, requests.Timeout) as error:
-            print('%s:%s' % (error.code, error.msg))
+            print('%s:%s' % (error.code, error.msg), flush=True)
             return long_url
             #sleep(2)
             #response = self.shorten_url(long_url)
@@ -138,7 +138,7 @@ class _Feeds(threading.Thread):
         def error(s):
             return {'items': [{'title': s}]}
         try:
-            #print('Downloading new feed from %u' % url)
+            #print(f'Downloading new feed from {url}', flush=True)
             results = feedparser.parse(url)
             if 'bozo_exception' in results:
                 raise results['bozo_exception']
@@ -154,7 +154,7 @@ class _Feeds(threading.Thread):
             self.cachedFeeds[name] = results
             self.lastRequest[name] = time.time()
         else:
-            print('Not caching results; feed is empty.')
+            print('Not caching results; feed is empty.', flush=True)
         try:
             return self.cachedFeeds[name]
         except KeyError:
@@ -206,7 +206,7 @@ class _Feeds(threading.Thread):
         if len(newheadlines) == 1:
             s = newheadlines[0][0]
             if s in ('Timeout downloading feed.', 'Unable to download feed.'):
-                print('%s %u', s, url)
+                print('%s %u', s, url, flush=True)
                 return
         
         def canonize(headline):
@@ -300,7 +300,7 @@ class feedie(SimpleIRCClient):
             try:
                 connection.privmsg(target, msg)
             except irc.client.ServerNotConnectedError as error:
-                print("Error: %s" % error)
+                print("Error: %s" % error, flush=True)
                 self.jump_server()
             time.sleep(delay)
     
@@ -377,7 +377,7 @@ class feedie(SimpleIRCClient):
             record = '{0} {1}@{2}: {3}'.format(event_time, nick, chan, message)
             with open(self.irc_entries, "a") as f:
                 f.write("{}\n".format(record))
-            print(record)
+            print(record, flush=True)
         
         if nick in config.feedie['bot_owner']:
             try:
@@ -386,13 +386,13 @@ class feedie(SimpleIRCClient):
                     serv.privmsg(chan, '{0}'.format(self.bold(self.mircColor("Successfully rehashed.", 'blue'))))
                 elif config.feedie['cmd_prefix']+'restart' == message.lower():
                     #self.restart_bot(serv, ev)
-                    print("missing feature: %s" % message)
+                    print("missing feature: %s" % message, flush=True)
                 elif config.feedie['cmd_prefix']+'quit' == message.lower():
                     serv.disconnect()
                     sys.exit(1)
             except OSError as error:
                 serv.disconnect()
-                print(error)
+                print(error, flush=True)
                 sys.exit(1)
 
         if config.feedie['cmd_prefix']+'help' == message.lower():
@@ -548,10 +548,10 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         sys.exit(1)
     except OSError as error:
-        print(error)
+        print(error, flush=True)
         sys.exit(1)
     except irc.client.ServerConnectionError as error:
-        print(error)
+        print(error, flush=True)
         sys.exit(1)
     except UnicodeDecodeError:
         pass
