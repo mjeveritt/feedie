@@ -1,83 +1,53 @@
 # -*- coding: utf-8 -*-
 
-feedie = {
-    'bot_owner': ['meigrafd'],
-    'cmd_prefix': '@',
-    #'shorten_service': 'v.gd', #requires ssl
-    'shorten_service': 'tinyurl.com',
-}
-
-network = {
-    'server': 'irc.jen.de.euirc.net',
-    'port': 6667,
-    'password': '',
-    'bot_nick': 'FEED',
-    'bot_name': 'feedie pyBot v1.0',
-    'pubmsg_log': False,
-    'announce_delay': .5,
-    'default_refresh_delay': 35.0,
-    'startup_announces': False,
-}
-
-feeds = [{
-    'mydealz': {
-        'url': 'https://www.mydealz.de/rss/alle',
-        'color': 'green',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'monsterdealz': {
-        'url': 'http://feeds.feedburner.com/MonsterDealz?format=xml',
-        'color': 'green',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'chillmo': {
-        'url': 'http://chillmo.com/feed/',
-        'color': 'orange',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'hwluxx': {
-        'url': 'http://www.hardwareluxx.de/index.php/rss/feed/3-hardwareluxx-rss-feed.html',
-        'color': 'teal',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'ht4u': {
-        'url': 'http://ht4u.net/feeds/news.xml',
-        'color': 'purple',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'pcgames': {
-        'url': 'http://www.pcgames.de/feed.cfm?menu_alias=home',
-        'color': 'pink',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'pcgames_hw': {
-        'url': 'http://www.pcgameshardware.de/feed.cfm',
-        'color': 'red',
-        'channel': '#FEEDs',
-        'channel_key': '',
-        'enabled': True,
-    },
-    'forum': {
-        'url': 'http://www.forum-raspberrypi.de/syndication2.php?limit=10',
-        'color': 'red',
-        'channel': '#Raspberry-Pi',
-        'channel_key': '',
-        'enabled': True,
-        'refresh_delay': 15.0,
-    },
-}]
+import yaml
+from copy import deepcopy
+from dataclasses import dataclass, field
+from typing import List, Optional, Dict
 
 
-# EOF
+@dataclass
+class Feedie:
+    bot_owner: List[str] = field(default_factory=lambda: deepcopy(['xstill']))
+    cmd_prefix: Optional[str] = '@'
+    shorten_service: Optional[str] = 'tinyurl.com'
+    wrap_url: Optional[str] = None
+
+
+@dataclass
+class Network:
+    server: str = 'chat.freenode.net'
+    port: int = 6667
+    password: str = ''
+    bot_nick: str = 'FEED'
+    bot_name: str = 'feedie pyBot v1.1'
+    pubmsg_log: bool = False
+    announce_delay: float = .5
+    default_refresh_delay: float = 35.0
+    startup_announces: bool = False
+
+
+@dataclass
+class Feed:
+    url: str
+    color: str
+    channel: str
+    channel_key: str = ''
+    enabled: bool = True
+    refresh_delay: Optional[float] = None
+
+
+class Config:
+    def __init__(self, path: str) -> None:
+        self.path = path
+        self.reload()
+
+    def reload(self) -> None:
+        with open(self.path, 'r') as h:
+            raw = yaml.safe_load(h)
+
+        self.feedie = Feedie(**raw.get('feedie', {}))
+        self.network = Network(**raw.get('network', {}))
+        self.feeds: Dict[str, Feed] = {name: Feed(**r)
+                                       for name, r
+                                       in raw.get('feeds', {}).items()}
