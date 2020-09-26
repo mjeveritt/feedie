@@ -342,7 +342,7 @@ class feedie(SimpleIRCClient):
     
     
     def on_invite(self, serv, ev):
-        serv.join(ev.arguments()[0])
+        serv.join(ev.arguments[0])
     
     
     def on_ctcp(self, serv, ev):
