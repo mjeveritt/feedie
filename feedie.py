@@ -358,7 +358,7 @@ class feedie(SimpleIRCClient):
     
     
     def on_privmsg(self, serv, ev):
-        if self.config.cmd_prefix is None:
+        if self.config.feedie.cmd_prefix is None:
             return
 
         nick = ev.source.nick
@@ -378,7 +378,7 @@ class feedie(SimpleIRCClient):
     
     
     def on_pubmsg(self, serv, ev):
-        if self.config.cmd_prefix is None:
+        if self.config.feedie.cmd_prefix is None:
             return
 
         nick = ev.source.nick
